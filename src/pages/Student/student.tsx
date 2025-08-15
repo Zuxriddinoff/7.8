@@ -24,10 +24,11 @@ const Student = () => {
   const [formData, setFormdata] = useState<IStudent>(initialState)
   const [editingItem, setEditingItem] = useState<any>(null);
   const [data, setData] = useState([]);
+  const [reload, setReload] = useState<boolean>(true)
 
   useEffect(() => {
     axios.get(`${API_URL}/student`).then((res) => setData(res.data))
-  }, [])
+  }, [reload])
 
 
   const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
@@ -42,16 +43,23 @@ const Student = () => {
             axios.put(`${API_URL}/student/${editingItem.id}`, formData).then(() => {
                 setEditingItem(null);
                 setFormdata(initialState)
+                setReload(p => !p)
             })
         }else{
             axios.post(`${API_URL}/student`, formData).then(() => {
                 setFormdata(initialState)
+                setReload(p => !p)
             })
         }
     }  
 
     const handleDelete = (id?:string) => {
-      axios.delete(`${API_URL}/student/${id}`,)
+      axios.delete(`${API_URL}/student/${id}`,).then(() => setReload(p => !p))
+    }
+
+    const handleUpdate = (item:IStudent) => {
+      setEditingItem(item)
+      setFormdata(item)
     }
 
     
@@ -137,7 +145,7 @@ const Student = () => {
                     Delete
                   </button>
                   <button
-                    // onClick={() => handleUpdate(item)}
+                    onClick={() => handleUpdate(item)}
                     className="py-0.5 border rounded-lg text-sm flex-1 text-green-400 border-green-400"
                   >
                     Update
